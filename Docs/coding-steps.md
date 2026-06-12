@@ -62,7 +62,22 @@ dotnet new gitignore
 
 **Commit:** `chore(repo): scaffold solution with core, desktop, web, and tests`
 
----
+```shell
+git add .
+git commit -m "chore(repo): scaffold solution with core, desktop, web, and tests"
+```
+
+**Create a GitHub repo**, configure and push:
+
+```shell
+gh repo create ClaudeTranslate --public --source=. -remote=origin --push
+```
+
+ - `--source=.` uses the current directory as the repo source                                     
+  - `--remote=origin` wires up the origin remote                                                   
+  - `--push` pushes existing commits immediately                                               
+
+  Swap `--public` for `--private` next time if you want a private repo.
 
 ### Step 2: Stub `Translator.Core`
 

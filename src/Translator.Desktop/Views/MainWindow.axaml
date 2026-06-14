@@ -3,10 +3,22 @@
         xmlns:vm="using:Translator.Desktop.ViewModels"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
         Width="620" Height="480" Title="Translate • EN ⇄ SV">
     <StackPanel Margin="16" Spacing="12">
-        <TextBox x:Name="Input" AcceptsReturn="True" PlaceholderText="Type in English or Swedish" />
-        <Button Content="Translate" Click="OnTranslateClick" />
-        <TextBlock x:Name="Output" Text="(output appears here)" />
+        <TextBox Text="{Binding InputText}" AcceptsReturn="True"
+                 PlaceholderText="Type in English or Swedish" KeyDown="OnInputKeyDown" />
+        <Button Content="Translate" Command="{Binding TranslateCommand}" IsEnabled="{Binding !IsBusy}" />
+        <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding Output}" TextWrapping="Wrap" />
+        <Button Content="Copy" Command="{Binding CopyCommand}" />
+        <TextBlock Text="{Binding Error}" Foreground="#d14343" IsVisible="{Binding HasError}" />
+        <ItemsControl ItemsSource="{Binding Recents}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Translation}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </StackPanel>
 </Window>

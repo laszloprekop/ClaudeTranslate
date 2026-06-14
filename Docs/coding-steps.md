@@ -135,14 +135,15 @@ public class Translator : ITranslator
 Replace the template's placeholder window content with a textbox, a button, and an output label. No logic yet — just prove the window renders.
 
 ```xml
-<!-- src/Translator.Desktop/Views/MainWindow.axaml  (replace the root content) -->
+<!-- src/Translator.Desktop/Views/MainWindow.axaml  (replace the whole file) -->
 <Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Translator.Desktop.ViewModels"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Width="620" Height="480" Title="Translate · EN ⇄ SV">
   <StackPanel Margin="16" Spacing="12">
-    <TextBox x:Name="Input" AcceptsReturn="True" Watermark="Type in English or Swedish…" />
+    <TextBox x:Name="Input" AcceptsReturn="True" PlaceholderText="Type in English or Swedish…" />
     <Button Content="Translate" />
     <TextBlock x:Name="Output" Text="(output appears here)" />
   </StackPanel>
@@ -514,25 +515,60 @@ public class SettingsStore
 Rebuild `MainWindow.axaml` to match the real layout — direction tag, output area, copy button, a recents list, and a settings toggle — bound to the ViewModel (filled in next step). Bindings reference properties that won't exist until Step 13; that's expected.
 
 ```xml
-<!-- src/Translator.Desktop/Views/MainWindow.axaml  (replace root content) -->
-<StackPanel Margin="16" Spacing="12">
-  <TextBox Text="{Binding InputText}" AcceptsReturn="True"
-           Watermark="Type in English or Swedish…" KeyDown="OnInputKeyDown" />
-  <Button Content="Translate" Command="{Binding TranslateCommand}"
-          IsEnabled="{Binding !IsBusy}" />
-  <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
-  <TextBlock Text="{Binding Output}" TextWrapping="Wrap" />
-  <Button Content="Copy" Command="{Binding CopyCommand}" />
-  <TextBlock Text="{Binding Error}" Foreground="#d14343" IsVisible="{Binding HasError}" />
-  <ItemsControl ItemsSource="{Binding Recents}">
-    <ItemsControl.ItemTemplate>
-      <DataTemplate><TextBlock Text="{Binding Translation}" /></DataTemplate>
-    </ItemsControl.ItemTemplate>
-  </ItemsControl>
-</StackPanel>
+<!-- src/Translator.Desktop/Views/MainWindow.axaml  (replace the whole file) -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Translator.Desktop.ViewModels"
+        x:Class="Translator.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
+        Width="620" Height="480" Title="Translate · EN ⇄ SV">
+  <StackPanel Margin="16" Spacing="12">
+    <TextBox Text="{Binding InputText}" AcceptsReturn="True"
+             PlaceholderText="Type in English or Swedish…" KeyDown="OnInputKeyDown" />
+    <Button Content="Translate" Command="{Binding TranslateCommand}"
+            IsEnabled="{Binding !IsBusy}" />
+    <TextBlock Text="{Binding Direction}" FontWeight="SemiBold" />
+    <TextBlock Text="{Binding Output}" TextWrapping="Wrap" />
+    <Button Content="Copy" Command="{Binding CopyCommand}" />
+    <TextBlock Text="{Binding Error}" Foreground="#d14343" IsVisible="{Binding HasError}" />
+    <ItemsControl ItemsSource="{Binding Recents}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate><TextBlock Text="{Binding Translation}" /></DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</Window>
 ```
 
-**Verify:** `dotnet build src/Translator.Desktop` — expect binding-related build to still succeed (Avalonia bindings resolve at runtime); it compiles. Window won't be functional until Step 13.
+> **Heads-up — keep the `<Window>` root.** You're replacing the *file's contents*, but the root element must stay a `<Window>` with its namespaces, `x:Class`, and `x:DataType` — the code-behind is `partial class MainWindow : Window`. If you paste only the inner `<StackPanel>`, the parser loses the Avalonia namespace and every element/property reports "Unable to resolve symbol."
+
+> **Why `x:CompileBindings="False"`.** This project sets `<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>` in the `.csproj`, so every `{Binding}` is checked against `x:DataType` *at compile time*. The bound properties (`InputText`, `TranslateCommand`, …) don't exist until Step 13, so compiled bindings would fail the build. Setting `x:CompileBindings="False"` on the `<Window>` defers these bindings to runtime for now, letting the layout compile. You'll remove it in Step 13 once the ViewModel has the properties, restoring compile-time binding checks.
+
+This layout drops the Step 4 named controls (`x:Name="Input"/"Output"`) and the `Click` handler, so the skeleton code-behind no longer compiles — strip it back. Remove the `_translator` field and the `OnTranslateClick` method (translation moves to the `TranslateCommand` in Step 13), and add an empty `OnInputKeyDown` handler to satisfy the new `KeyDown="OnInputKeyDown"` wiring (filled in at Step 14):
+
+```csharp
+// src/Translator.Desktop/Views/MainWindow.axaml.cs  (replace the file)
+using Avalonia.Controls;
+using Avalonia.Input;
+
+namespace Translator.Desktop.Views;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
+
+    // Wired up in Step 14 (Enter = translate, Shift+Enter = newline).
+    private void OnInputKeyDown(object? sender, KeyEventArgs e)
+    {
+    }
+}
+```
+
+**Verify:** `dotnet build src/Translator.Desktop` — builds clean. The window won't be functional until Step 13 (no ViewModel properties yet). If you see a stray `AVLN3000` about the `KeyDown` handler right after fixing the code-behind, it's a stale incremental build — rerun with `--no-incremental`.
 
 **Commit:** `feat(desktop): lay out main translate view with bindings`
 
@@ -593,6 +629,8 @@ public partial class MainWindowViewModel : ObservableObject
     private static string Tag(string lang) => lang == "English" ? "en" : lang == "Swedish" ? "sv" : "??";
 }
 ```
+
+Now that the ViewModel exposes these properties, **remove `x:CompileBindings="False"` from the `<Window>` in `MainWindow.axaml`** (added in Step 12) to restore compile-time binding checks — the bindings now resolve against the real `x:DataType`.
 
 **Verify:** `dotnet build` — fails if `History` is null on a fresh install. Guard the load (`_settings.History ?? new()`, or default the property — you already defaulted it in Step 10, so the real fix is keeping `Load()` from returning a settings object with a null list). Run the app with a real key in settings.json → a real translation appears with the direction tag.
 

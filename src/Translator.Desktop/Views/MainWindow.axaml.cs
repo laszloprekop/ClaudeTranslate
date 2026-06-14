@@ -1,7 +1,5 @@
-using System;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Translator.Core;
+using Avalonia.Input;
 
 namespace Translator.Desktop.Views;
 
@@ -12,12 +10,8 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private readonly ITranslator _translator = new Translator.Core.Translator(
-        Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? "");
-
-    private async void OnTranslateClick(object? sender, RoutedEventArgs e)
+    // Wired up in Step 14 (Enter = translate, Shift+Enter = newline).
+    private void OnInputKeyDown(object? sender, KeyEventArgs e)
     {
-        var result = await _translator.TranslateAsync(Input.Text ?? "", "");
-        Output.Text = $"{result.Source} -> {result.Target}: {result.Translation}";
     }
 }

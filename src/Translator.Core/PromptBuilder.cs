@@ -1,6 +1,6 @@
 namespace Translator.Core;
 
-public class PromtBuilder
+public class PromptBuilder
 {
     public const string DefaultStyle =
         "Natural, idiomatic, slighltly casual. Sound like a fluent bilingual speaker" +

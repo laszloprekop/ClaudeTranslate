@@ -1,9 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
+using Translator.Desktop.Models;
+using Translator.Desktop.Services;
 using Translator.Desktop.ViewModels;
 using Translator.Desktop.Views;
 
@@ -20,6 +19,8 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            new SettingsStore().Save(new AppSettings { ApiKey = "test" });
+
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(),

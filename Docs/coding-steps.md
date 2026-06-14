@@ -432,7 +432,7 @@ Both key reads are temporary: the desktop reads it from saved settings in the se
 
 ### Step 10: Stub the settings model and JSON config store
 
-> **New concept: per-user app-data + JSON config.** `Environment.GetFolderPath(SpecialFolder.ApplicationData)` resolves to the platform's per-user config dir (on macOS under .NET that's `~/.config`; on Windows `%AppData%`). We persist a small JSON document there — same security posture as the original `localStorage`, fine for a personal local tool.
+> **New concept: per-user app-data + JSON config.** `Environment.GetFolderPath(SpecialFolder.ApplicationData)` resolves to the platform's per-user config dir (on macOS under .NET that's `~/Library/Application Support`; on Windows `%AppData%`; on Linux `~/.config`). We persist a small JSON document there — same security posture as the original `localStorage`, fine for a personal local tool.
 
 Add the settings shape and a store with stubbed load/save (return defaults, do nothing on save) so the UI can bind before the file logic exists.
 
@@ -503,7 +503,7 @@ public class SettingsStore
 }
 ```
 
-**Verify:** temporarily call `new SettingsStore().Save(new AppSettings { ApiKey = "test" })` from `App` startup, run once, and confirm `~/.config/Translator/settings.json` exists. Remove the temporary call.
+**Verify:** temporarily call `new SettingsStore().Save(new AppSettings { ApiKey = "test" })` from `App` startup, run once, and confirm the settings file exists (on macOS: `~/Library/Application Support/Translator/settings.json`). Remove the temporary call.
 
 **Commit:** `feat(desktop): persist settings to JSON in app-data`
 

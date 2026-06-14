@@ -116,7 +116,7 @@ public class Translator : ITranslator
     public Task<TranslationResult> TranslateAsync(string text, string styleGuide)
     {
         // Stub: echo back, pretend we detected English.
-        var result = new TranslationResult { Source = "English", Target = "Swedish", Translation = $"[stub] {text}" };
+        var result = new TranslationResult ( Source = "English", Target = "Swedish", Translation = $"[stub] {text}" );
         return Task.FromResult(result);
     }
 }

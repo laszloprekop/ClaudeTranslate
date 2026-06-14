@@ -1,8 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace Translator.Core;
 
-public class TranslationResult
-{
-    public string Source { get; set; } = "";
-    public string Target { get; set; } = "";
-    public string Translation { get; set; } = "";
-}
+public record TranslationResult(
+    [property: JsonPropertyName("source")] string Source,
+    [property: JsonPropertyName("target")] string Target,
+    [property: JsonPropertyName("translation")] string Translation );

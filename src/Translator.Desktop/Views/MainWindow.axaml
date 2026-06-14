@@ -4,7 +4,6 @@
         xmlns:models="using:Translator.Desktop.Models"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        x:CompileBindings="False"
         Width="620" Height="480" Title="Translate • EN ⇄ SV">
     <StackPanel Margin="16" Spacing="12">
         <TextBox Text="{Binding InputText}" AcceptsReturn="True"

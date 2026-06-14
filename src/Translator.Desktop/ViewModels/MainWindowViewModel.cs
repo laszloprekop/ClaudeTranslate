@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Translator.Desktop.Models;
@@ -39,6 +42,12 @@ public partial class MainWindowViewModel : ObservableObject
             var r = await translator.TranslateAsync(InputText, _settings.Style);
             Direction = $"{Tag(r.Source)} -> {Tag(r.Target)}";
             Output = r.Translation;
+            var item = new HistoryItem(InputText, r.Source, r.Target, r.Translation);
+            Recents.Insert(0, item);
+            while (Recents.Count > 25) Recents.RemoveAt(Recents.Count - 1);
+            _settings.History = Recents.ToList();
+            _store.Save(_settings);
+            InputText = "";
         }
         catch (Exception ex)
         {
@@ -49,6 +58,15 @@ public partial class MainWindowViewModel : ObservableObject
             IsBusy = false;
             OnPropertyChanged(nameof(HasError));
         }
+    }
+
+    [RelayCommand]
+    private async Task CopyAsync()
+    {
+        var top =
+            Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        var clip = top?.MainWindow?.Clipboard;
+        if (clip is not null) await clip.SetTextAsync(Output);
     }
 
     private string Tag(string lang) => lang == "English" ? "en" : lang == "Swedish" ? "sv" : "??";

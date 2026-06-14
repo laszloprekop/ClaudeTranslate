@@ -23,6 +23,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     public bool HasError => !string.IsNullOrEmpty(Error);
     public ObservableCollection<HistoryItem> Recents { get; } = new();
+    [ObservableProperty] private bool _showSettings;
 
     public MainWindowViewModel()
     {
@@ -70,4 +71,26 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     private string Tag(string lang) => lang == "English" ? "en" : lang == "Swedish" ? "sv" : "??";
+
+    public string StyleText
+    {
+        get => _settings.Style;
+        set
+        {
+            _settings.Style = value;
+            _store.Save(_settings);
+            OnPropertyChanged();
+        }
+    }
+
+    public string ApiKeyText
+    {
+        get => _settings.ApiKey;
+        set
+        {
+            _settings.ApiKey = value;
+            _store.Save(_settings);
+            OnPropertyChanged();
+        }
+    }
 }

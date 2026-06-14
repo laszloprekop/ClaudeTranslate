@@ -6,6 +6,13 @@
         x:DataType="vm:MainWindowViewModel"
         Width="620" Height="480" Title="Translate • EN ⇄ SV">
     <StackPanel Margin="16" Spacing="12">
+        <ToggleButton Content="Settings" IsChecked="{Binding ShowSettings}" />
+        <StackPanel IsVisible="{Binding ShowSettings}" Spacing="8">
+            <TextBlock Text="Writing style"></TextBlock>
+            <TextBox Text="{Binding StyleText}" TextWrapping="Wrap" AcceptsReturn="True" Height="80"></TextBox>
+            <TextBlock Text="Anthropic API Key"></TextBlock>
+            <TextBox Text="{Binding ApiKeyText}" PasswordChar="•"></TextBox>
+        </StackPanel>
         <TextBox Text="{Binding InputText}" AcceptsReturn="True"
                  PlaceholderText="Type in English or Swedish" KeyDown="OnInputKeyDown" />
         <Button Content="Translate" Command="{Binding TranslateCommand}" IsEnabled="{Binding !IsBusy}" />

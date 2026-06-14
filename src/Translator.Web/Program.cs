@@ -1,7 +1,8 @@
 using Translator.Core;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<ITranslator, Translator.Core.Translator>();
+var apiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? "";
+builder.Services.AddSingleton<ITranslator>(_ => new Translator.Core.Translator(apiKey));
 var app = builder.Build();
 
 app.UseDefaultFiles();

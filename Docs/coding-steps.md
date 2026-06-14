@@ -403,7 +403,28 @@ public class Translator(string apiKey, string model = "claude-sonnet-4-6") : ITr
 }
 ```
 
-**Verify:** `dotnet build` fails (you're calling `.Content` on a `Task`); add `await`. Then update the two callers — desktop code-behind (Step 4) and `Program.cs` (Step 5) — to construct `new Translator.Core.Translator(apiKey)`. (Desktop: read the key in the next slice; for now hardcode from an env var: `Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? ""`.) With a real key set, `dotnet run --project src/Translator.Desktop` produces a genuine translation.
+**Verify:** `dotnet build` fails first because you're calling `.Content` on a `Task` — add `await` to the `_client.Messages.Create(parameters)` call. It then fails again on the two existing callers, because `Translator` now needs an `apiKey` argument. Update both — they take different shapes:
+
+*Desktop code-behind (from Step 4)* — the translator is a field initializer, so substitute the env-var read directly where the no-arg constructor was. Add `using System;` (this project has no implicit usings) so `Environment` resolves:
+
+```csharp
+// src/Translator.Desktop/Views/MainWindow.axaml.cs
+using System;
+// ... existing using directives ...
+
+    private readonly ITranslator _translator = new Translator.Core.Translator(
+        Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? "");
+```
+
+*Web `Program.cs` (from Step 5)* — this goes through DI, so the two-type-argument registration no longer works (the container can't supply the `apiKey`). Switch to the factory overload that constructs `Translator` explicitly:
+
+```csharp
+// src/Translator.Web/Program.cs  (replace the AddSingleton line)
+var apiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? "";
+builder.Services.AddSingleton<ITranslator>(_ => new Translator.Core.Translator(apiKey));
+```
+
+Both key reads are temporary: the desktop reads it from saved settings in the settings slice, and Step 17 replaces the web version with a config-based key. With a real key set in the environment, `dotnet run --project src/Translator.Desktop` produces a genuine translation.
 
 **Commit:** `feat(core): call Anthropic with structured outputs`
 

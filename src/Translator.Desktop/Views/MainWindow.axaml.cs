@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Translator.Core;
@@ -11,7 +12,8 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private readonly ITranslator _translator = new Translator.Core.Translator();
+    private readonly ITranslator _translator = new Translator.Core.Translator(
+        Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? "");
 
     private async void OnTranslateClick(object? sender, RoutedEventArgs e)
     {

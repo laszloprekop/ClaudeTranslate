@@ -3,11 +3,10 @@
         xmlns:vm="using:Translator.Desktop.ViewModels"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Width="620" Height="480" Title="Translate • EN ⇄ SV"
-        >
+        Width="620" Height="480" Title="Translate • EN ⇄ SV">
     <StackPanel Margin="16" Spacing="12">
         <TextBox x:Name="Input" AcceptsReturn="True" PlaceholderText="Type in English or Swedish" />
-        <Button Content = "Translate"/>
+        <Button Content="Translate" Click="OnTranslateClick" />
         <TextBlock x:Name="Output" Text="(output appears here)" />
     </StackPanel>
 </Window>

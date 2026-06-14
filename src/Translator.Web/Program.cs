@@ -1,8 +1,10 @@
 using Translator.Core;
 
 var builder = WebApplication.CreateBuilder(args);
-var apiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ?? "";
-builder.Services.AddSingleton<ITranslator>(_ => new Translator.Core.Translator(apiKey));
+var apiKey = builder.Configuration["Anthropic:ApiKey"] ?? Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") ??
+    throw new InvalidOperationException("No Anthropic API key configured.");
+var model = builder.Configuration["Anthropic:Model"] ?? "claude-opus-4-8";
+builder.Services.AddSingleton<ITranslator>(_ => new Translator.Core.Translator(apiKey, model));
 var app = builder.Build();
 
 app.UseDefaultFiles();

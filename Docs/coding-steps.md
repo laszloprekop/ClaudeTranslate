@@ -730,21 +730,30 @@ Make a web-only copy of the page: remove the API-key field and the direct `api.a
 # index.html already copied in Step 5; edit it in place
 ```
 
-In `src/Translator.Web/wwwroot/index.html`, replace the `translate(text)` network section so the body posts to your endpoint instead of Anthropic, and delete the `apiKey` input + its `Store` wiring:
+In `src/Translator.Web/wwwroot/index.html`, replace the **entire** `translate(text)` function. The server now builds the prompt and holds the key, so the browser just posts `text` + `style` — drop the client-side prompt string and all the `x-api-key`/`anthropic-*` header logic:
 
 ```javascript
-// src/Translator.Web/wwwroot/index.html  (inside translate(), replace the fetch block)
-  const res = await fetch("/api/translate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, style: els.style.value }),
-  });
-  if (!res.ok) throw new Error("API " + res.status);
-  const p = await res.json();   // server returns {source,target,translation} already
-  return { source: p.source, target: p.target, translation: p.translation };
+// src/Translator.Web/wwwroot/index.html  (replace the whole translate() function)
+  async function translate(text) {
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, style: els.style.value }),
+    });
+    if (!res.ok) throw new Error("API " + res.status);
+    const p = await res.json();   // server returns {source,target,translation} already
+    return { source: p.source, target: p.target, translation: p.translation };
+  }
 ```
 
-Delete the `<input id="apiKey">` block and the `tr:key` lines in the page's script (the server holds the key now).
+Now remove **every** trace of the API key — the browser never sees it again. Deleting only the HTML input leaves dangling JS references, and because `$("apiKey")` then returns `null`, the page throws `Cannot read properties of null (reading 'addEventListener')` at load. Delete all of these:
+
+- the `<input id="apiKey">` block in the HTML;
+- the `apiKey: $("apiKey")` entry in the `els` map;
+- the blur listener that saves the key: `els.apiKey.addEventListener("blur", () => Store.set("tr:key", …))`;
+- the `els.apiKey.value` read and "set your API key" branch inside `describeError()` — simplify it to just `return "Couldn't translate: " + (e.message || e);`.
+
+> **Tip:** `grep -n "apiKey\|tr:key" index.html` should return nothing when you're done. Reload the page and confirm the browser console is clean.
 
 **Verify:** with the Web project running (still the Core stub or real key via env), open `http://localhost:5000`, type a phrase → it round-trips through `/api/translate`.
 

@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Translator.Desktop.ViewModels"
+        xmlns:models="using:Translator.Desktop.Models"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:CompileBindings="False"
@@ -15,7 +16,7 @@
         <TextBlock Text="{Binding Error}" Foreground="#d14343" IsVisible="{Binding HasError}" />
         <ItemsControl ItemsSource="{Binding Recents}">
             <ItemsControl.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="models:HistoryItem">
                     <TextBlock Text="{Binding Translation}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

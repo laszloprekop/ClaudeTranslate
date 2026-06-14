@@ -519,6 +519,7 @@ Rebuild `MainWindow.axaml` to match the real layout — direction tag, output ar
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Translator.Desktop.ViewModels"
+        xmlns:models="using:Translator.Desktop.Models"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:CompileBindings="False"
@@ -534,7 +535,7 @@ Rebuild `MainWindow.axaml` to match the real layout — direction tag, output ar
     <TextBlock Text="{Binding Error}" Foreground="#d14343" IsVisible="{Binding HasError}" />
     <ItemsControl ItemsSource="{Binding Recents}">
       <ItemsControl.ItemTemplate>
-        <DataTemplate><TextBlock Text="{Binding Translation}" /></DataTemplate>
+        <DataTemplate x:DataType="models:HistoryItem"><TextBlock Text="{Binding Translation}" /></DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
   </StackPanel>
@@ -630,7 +631,7 @@ public partial class MainWindowViewModel : ObservableObject
 }
 ```
 
-Now that the ViewModel exposes these properties, **remove `x:CompileBindings="False"` from the `<Window>` in `MainWindow.axaml`** (added in Step 12) to restore compile-time binding checks — the bindings now resolve against the real `x:DataType`.
+> **Keep `x:CompileBindings="False"` for now.** This step adds most of the bound members, but the view's Copy button still binds `CopyCommand`, which doesn't exist until Step 14. Leave the flag in place until then — you'll remove it at the end of Step 14, once *every* bound member exists.
 
 **Verify:** `dotnet build` — fails if `History` is null on a fresh install. Guard the load (`_settings.History ?? new()`, or default the property — you already defaulted it in Step 10, so the real fix is keeping `Load()` from returning a settings object with a null list). Run the app with a real key in settings.json → a real translation appears with the direction tag.
 
@@ -675,6 +676,8 @@ Wire the remaining UX from the original app: push each translation onto the last
         }
     }
 ```
+
+Now that `CopyCommand` exists, **every** member the view binds is defined, so **remove `x:CompileBindings="False"` from the `<Window>` in `MainWindow.axaml`** (added in Step 12) to restore compile-time binding validation. Rebuild — if any binding name is wrong, you now get a precise `AVLN2000` error instead of a silent runtime no-op.
 
 **Verify:** `dotnet run --project src/Translator.Desktop` — translate, see it appear in recents and persist across restarts; Copy puts the result on the clipboard; Enter translates, Shift+Enter adds a line.
 

@@ -488,7 +488,7 @@
 
     <section class="history" id="history" hidden>
         <div class="history-head">
-            <h2>Translations</h2>
+            <h2 id="historyTitle">Translations</h2>
             <button class="clear-history" id="clearHistoryBtn">clear</button>
         </div>
         <div id="historyList"></div>
@@ -508,11 +508,22 @@
   ];
   const DEFAULT_TARGETS = ["English", "Swedish"];
 
+  // Shown when the history is empty (first visit or after "clear") to showcase the app.
+  const EXAMPLES = [
+    {input: "Where is the nearest train station?", source: "English", target: "Swedish", translation: "Var ligger närmaste tågstation?"},
+    {input: "Tack för hjälpen!", source: "Swedish", target: "English", translation: "Thanks for the help!"},
+    {input: "szeretlek", source: "Hungarian", target: "English", translation: "I love you"},
+    {input: "See you tomorrow!", source: "English", target: "German", translation: "Bis morgen!"},
+    {input: "petit déjeuner", source: "French", target: "English", translation: "breakfast"},
+    {input: "mariposa", source: "Spanish", target: "Swedish", translation: "fjäril"},
+  ];
+
   const $ = (id) => document.getElementById(id);
   const els = {
     input: $("input"), go: $("goBtn"), clear: $("clearBtn"),
     error: $("error"), langs: $("langs"),
     history: $("history"), historyList: $("historyList"), clearHistory: $("clearHistoryBtn"),
+    historyTitle: $("historyTitle"),
     settings: $("settings"), settingsBtn: $("settingsBtn"), style: $("style"),
   };
 
@@ -543,6 +554,13 @@
 
   let history = [];
   let targets = [...DEFAULT_TARGETS];
+  let showingExamples = false;
+
+  function showExamples() {
+    history = [...EXAMPLES];
+    showingExamples = true;
+    renderHistory();
+  }
 
   (async function init() {
     els.style.value = (await Store.get("tr:style")) || DEFAULT_STYLE;
@@ -557,7 +575,8 @@
     } catch { /* keep defaults */
     }
     renderLangs();
-    renderHistory();
+    if (history.length) renderHistory();
+    else showExamples();
     autoGrow();
     els.input.focus();
   })();
@@ -573,9 +592,8 @@
   });
   els.go.addEventListener("click", run);
   els.clearHistory.addEventListener("click", () => {
-    history = [];
     Store.set("tr:history", "[]");
-    renderHistory();
+    showExamples();
   });
 
   els.input.addEventListener("input", autoGrow);
@@ -625,6 +643,10 @@
       if (!fresh.length) {
         showError("The input is already in every selected language — nothing to translate.");
         return;
+      }
+      if (showingExamples) {
+        history = [];
+        showingExamples = false;
       }
       history.unshift(...fresh.map((r) => ({input: text, ...r})));
       history = history.slice(0, 30);
@@ -689,6 +711,7 @@
       return;
     }
     els.history.hidden = false;
+    els.historyTitle.textContent = showingExamples ? "Examples" : "Translations";
     els.historyList.innerHTML = "";
     history.forEach((h) => {
       const entry = document.createElement("div");

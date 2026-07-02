@@ -1,22 +1,27 @@
-# Translate · EN ⇄ SV
+<p align="center">
+  <img src="./Docs/AppIcon.png" width="128" alt="Translate app icon"/>
+</p>
 
-![Translate — English ⇄ Swedish desktop and web app](./Docs/Screenshot.png)
+# Translate · EN ⇄ SV
 
 A small, personal English ⇄ Swedish translator powered by Claude. Type in either
 language; the model detects the direction, translates in a natural, idiomatic
 style, and returns a guaranteed-shape result via the Anthropic SDK's **structured
 outputs** — no fragile JSON-from-markdown parsing.
 
+![Translate — desktop and web app](./Docs/Screenshot.png)
+
 The same translation core drives two front-ends: a cross-platform **Avalonia
 desktop app** and a private **ASP.NET web app**.
 
 ## Features
 
-- **Bidirectional, auto-detected** — English→Swedish or Swedish→English, decided per input.
+- **Multi-language targets** — pick any of 🇬🇧 🇸🇪 🇭🇺 🇩🇪 🇫🇷 🇪🇸 via flag chips; one click translates to all checked languages in parallel, with the source auto-detected.
 - **Structured outputs** — the model returns JSON validated against a schema, mapped to a typed `TranslationResult`.
 - **Configurable style** — a writing-style guide steers tone; defaults to natural, idiomatic, slightly casual.
 - **Configurable model** — defaults to `claude-opus-4-8`; override per deployment.
-- **Desktop niceties** — recents (last 8), copy-to-clipboard, Enter-to-translate (Shift+Enter for newline), persisted settings, follows OS light/dark theme.
+- **Stacked history** — original next to translation, each with its own copy button; seeded with showcase examples on first run and after clearing.
+- **Desktop niceties** — Enter-to-translate (Shift+Enter for newline), persisted settings, follows OS light/dark theme, packageable as a standalone macOS app.
 - **One shared core** — desktop and web both call `Translator.Core`; only the key handling differs.
 
 ## Architecture
@@ -61,6 +66,12 @@ dotnet run --project src/Translator.Desktop
 Type a phrase and hit **Translate** (or press Enter). Open **Settings** to paste
 your API key and tweak the writing style — both persist between runs. On macOS,
 settings live at `~/Library/Application Support/Translator/settings.json`.
+
+To package a standalone macOS app bundle (`dist/Translate.app`):
+
+```bash
+./scripts/package-macos.sh          # osx-arm64 by default; pass a RID to override
+```
 
 ### Web
 

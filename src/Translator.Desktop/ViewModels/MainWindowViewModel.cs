@@ -24,6 +24,16 @@ public partial class LanguageOption(Language language, bool isChecked, Action on
 
 public partial class MainWindowViewModel : ObservableObject
 {
+    private static readonly HistoryItem[] ExampleHistory =
+    [
+        new("Where is the nearest train station?", "English", "Swedish", "Var ligger närmaste tågstation?"),
+        new("Tack för hjälpen!", "Swedish", "English", "Thanks for the help!"),
+        new("szeretlek", "Hungarian", "English", "I love you"),
+        new("See you tomorrow!", "English", "German", "Bis morgen!"),
+        new("petit déjeuner", "French", "English", "breakfast"),
+        new("mariposa", "Spanish", "Swedish", "fjäril"),
+    ];
+
     private readonly SettingsStore _store = new();
     private readonly AppSettings _settings;
 
@@ -31,21 +41,32 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _error = "";
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private bool _showSettings;
+    [ObservableProperty] private bool _showingExamples;
     public bool HasError => !string.IsNullOrEmpty(Error);
     public bool HasHistory => Recents.Count > 0;
+    public string HistoryHeading => ShowingExamples ? "EXAMPLES" : "TRANSLATIONS";
     public ObservableCollection<HistoryItem> Recents { get; } = new();
     public ObservableCollection<LanguageOption> Languages { get; } = new();
 
     public MainWindowViewModel()
     {
         _settings = _store.Load();
-        foreach (var h in _settings.History) Recents.Add(h);
+        if (_settings.History.Count == 0) ShowExamples();
+        else foreach (var h in _settings.History) Recents.Add(h);
         foreach (var l in LanguageCatalog.All)
             Languages.Add(new LanguageOption(l, _settings.Targets.Contains(l.Name), SaveTargets));
         Recents.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasHistory));
     }
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
+    partial void OnShowingExamplesChanged(bool value) => OnPropertyChanged(nameof(HistoryHeading));
+
+    private void ShowExamples()
+    {
+        Recents.Clear();
+        foreach (var item in ExampleHistory) Recents.Add(item);
+        ShowingExamples = true;
+    }
 
     private void SaveTargets()
     {
@@ -76,6 +97,11 @@ public partial class MainWindowViewModel : ObservableObject
                 Error = "The input is already in every selected language — nothing to translate.";
                 return;
             }
+            if (ShowingExamples)
+            {
+                Recents.Clear();
+                ShowingExamples = false;
+            }
             for (var i = fresh.Count - 1; i >= 0; i--)
                 Recents.Insert(0, new HistoryItem(InputText, fresh[i].Source, fresh[i].Target, fresh[i].Translation));
             while (Recents.Count > 30) Recents.RemoveAt(Recents.Count - 1);
@@ -99,9 +125,9 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ClearHistory()
     {
-        Recents.Clear();
         _settings.History = [];
         _store.Save(_settings);
+        ShowExamples();
     }
 
     [RelayCommand]

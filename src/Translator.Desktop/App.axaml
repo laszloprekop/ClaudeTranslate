@@ -8,8 +8,205 @@
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-  
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="BgBrush" Color="#f5f6f8"/>
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="#ffffff"/>
+                    <SolidColorBrush x:Key="TextBrush" Color="#1f2024"/>
+                    <SolidColorBrush x:Key="MutedBrush" Color="#6b6f76"/>
+                    <SolidColorBrush x:Key="FaintBrush" Color="#9aa0a6"/>
+                    <SolidColorBrush x:Key="LineBrush" Color="#e7e9ec"/>
+                    <SolidColorBrush x:Key="AccentBrush" Color="#4f46e5"/>
+                    <SolidColorBrush x:Key="AccentSoftBrush" Color="#eef0fe"/>
+                    <BoxShadows x:Key="CardShadow">0 1 2 0 #0F141428, 0 6 24 0 #0F141428</BoxShadows>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="BgBrush" Color="#131417"/>
+                    <SolidColorBrush x:Key="SurfaceBrush" Color="#1c1e22"/>
+                    <SolidColorBrush x:Key="TextBrush" Color="#ecedef"/>
+                    <SolidColorBrush x:Key="MutedBrush" Color="#a3a8b0"/>
+                    <SolidColorBrush x:Key="FaintBrush" Color="#71757d"/>
+                    <SolidColorBrush x:Key="LineBrush" Color="#2a2d33"/>
+                    <SolidColorBrush x:Key="AccentBrush" Color="#8b85ff"/>
+                    <SolidColorBrush x:Key="AccentSoftBrush" Color="#25264a"/>
+                    <BoxShadows x:Key="CardShadow">0 1 2 0 #66000000, 0 8 28 0 #59000000</BoxShadows>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <SolidColorBrush x:Key="ErrorBrush" Color="#d14343"/>
+            <FontFamily x:Key="PlexSans">avares://Translator.Desktop/Assets/Fonts#IBM Plex Sans</FontFamily>
+
+            <StreamGeometry x:Key="TranslateIcon">M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z</StreamGeometry>
+            <StreamGeometry x:Key="TuneIcon">M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z</StreamGeometry>
+            <StreamGeometry x:Key="CloseIcon">M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z</StreamGeometry>
+            <StreamGeometry x:Key="ArrowIcon">M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z</StreamGeometry>
+            <StreamGeometry x:Key="CopyIcon">M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z</StreamGeometry>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
+
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource PlexSans}"/>
+        </Style>
+
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="BoxShadow" Value="{DynamicResource CardShadow}"/>
+        </Style>
+
+        <Style Selector="Border.pill">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="Padding" Value="11,5"/>
+        </Style>
+
+        <Style Selector="Border.dir">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="Padding" Value="9,3"/>
+        </Style>
+        <Style Selector="Border.dir TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+
+        <!-- Primary action button -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12,9,14,9"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="Opacity" Value="0.92"/>
+        </Style>
+        <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+        <Style Selector="Button.primary:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="Opacity" Value="0.45"/>
+        </Style>
+        <Style Selector="Button.primary PathIcon">
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+
+        <!-- Quiet icon buttons -->
+        <Style Selector="Button.icon, ToggleButton.icon">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+        </Style>
+        <Style Selector="Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                         ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                         ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style Selector="Button.icon PathIcon, ToggleButton.icon PathIcon">
+            <Setter Property="Width" Value="19"/>
+            <Setter Property="Height" Value="19"/>
+        </Style>
+        <Style Selector="Button.icon.small, ToggleButton.icon.small">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="Button.icon.small PathIcon">
+            <Setter Property="Width" Value="15"/>
+            <Setter Property="Height" Value="15"/>
+        </Style>
+
+        <!-- Language chips -->
+        <Style Selector="ToggleButton.chip">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+        </Style>
+        <Style Selector="ToggleButton.chip:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+        </Style>
+        <Style Selector="ToggleButton.chip:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style Selector="ToggleButton.chip:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+
+        <!-- Borderless input inside the input card -->
+        <Style Selector="TextBox.bare">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0,12"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="LineHeight" Value="25"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentSoftBrush}"/>
+        </Style>
+        <Style Selector="TextBox.bare /template/ TextBlock#PART_Watermark,
+                         TextBox.bare /template/ TextBlock#PART_PlaceholderTextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>
+        </Style>
+        <Style Selector="TextBox.bare:pointerover /template/ Border#PART_BorderElement,
+                         TextBox.bare:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <!-- Settings form fields -->
+        <Style Selector="TextBox.field">
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style Selector="TextBox.field:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+        </Style>
+        <Style Selector="TextBox.field:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        </Style>
     </Application.Styles>
 </Application>

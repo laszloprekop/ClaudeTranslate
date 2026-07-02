@@ -8,13 +8,19 @@ public class Translator(string apiKey, string model = "claude-opus-4-8") : ITran
 {
     private readonly AnthropicClient _client = new() { ApiKey = apiKey };
 
-    public async Task<TranslationResult> TranslateAsync(string text, string styleGuide)
+    public Task<TranslationResult> TranslateAsync(string text, string styleGuide) =>
+        CreateAsync(PromptBuilder.Build(text, styleGuide));
+
+    public Task<TranslationResult> TranslateAsync(string text, string styleGuide, string targetLanguage) =>
+        CreateAsync(PromptBuilder.Build(text, styleGuide, targetLanguage));
+
+    private async Task<TranslationResult> CreateAsync(string prompt)
     {
         var parameters = new MessageCreateParams
         {
             Model = model,
             MaxTokens = 1000,
-            Messages = [new() { Role = Role.User, Content = PromptBuilder.Build(text, styleGuide) }],
+            Messages = [new() { Role = Role.User, Content = prompt }],
             OutputConfig = new OutputConfig()
             {
                 Format = new JsonOutputFormat { Schema = TranslationSchema.Build() },

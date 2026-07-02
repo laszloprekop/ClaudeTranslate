@@ -9,8 +9,8 @@ public static class TranslationSchema
         ["type"] = JsonSerializer.SerializeToElement("object"),
         ["properties"] = JsonSerializer.SerializeToElement(new
         {
-            source = new { type = "string", @enum = new[] { "English", "Swedish" } },
-            target = new { type = "string", @enum = new[] { "English", "Swedish" } },
+            source = new { type = "string", @enum = LanguageCatalog.All.Select(l => l.Name).ToArray() },
+            target = new { type = "string", @enum = LanguageCatalog.All.Select(l => l.Name).ToArray() },
             translation = new { type = "string" },
         }),
         ["required"] = JsonSerializer.SerializeToElement(new[] { "source", "target", "translation" }),

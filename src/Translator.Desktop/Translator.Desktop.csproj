@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Remove="Assets\AppIcon.svg" />
+    <AvaloniaResource Remove="Assets\AppIcon.icns" />
   </ItemGroup>
 
   <ItemGroup>

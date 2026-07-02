@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Translate · EN ⇄ SV</title>
+    <title>Translate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -72,7 +72,7 @@
 
         .app {
             width: 100%;
-            max-width: 620px;
+            max-width: 680px;
         }
 
         header {
@@ -132,6 +132,16 @@
 
         .icon-btn .material-symbols-outlined {
             font-size: 21px;
+        }
+
+        .icon-btn.small {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .icon-btn.small .material-symbols-outlined {
+            font-size: 17px;
         }
 
         .card {
@@ -257,40 +267,50 @@
             font-size: 19px;
         }
 
-        .output {
-            margin-top: 16px;
-            padding: 16px 18px;
+        .langs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
         }
 
-        .output[hidden] {
+        .lang-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 7px 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+
+        .lang-chip input {
             display: none;
         }
 
-        .output-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
+        .lang-chip .flag {
+            font-size: 16px;
         }
 
-        .output-head .dir {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--accent);
+        .lang-chip:hover {
+            border-color: var(--accent);
+        }
+
+        .lang-chip:has(input:checked) {
             background: var(--accent-soft);
-            padding: 3px 9px;
-            border-radius: 999px;
-            letter-spacing: .3px;
-        }
-
-        #translation {
-            font-size: 18px;
-            line-height: 1.55;
-            white-space: pre-wrap;
-            word-break: break-word;
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .error {
+            margin-top: 16px;
+            padding: 14px 18px;
             color: #d14343;
             font-size: 14px;
             line-height: 1.5;
@@ -300,67 +320,112 @@
             display: none;
         }
 
-        .recents {
+        .history {
             margin-top: 26px;
         }
 
-        .recents[hidden] {
+        .history[hidden] {
             display: none;
         }
 
-        .recents h2 {
+        .history-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 0 4px 10px;
+        }
+
+        .history h2 {
             font-size: 12px;
             font-weight: 600;
             letter-spacing: .6px;
             text-transform: uppercase;
             color: var(--faint);
-            margin: 0 0 10px 4px;
+            margin: 0;
         }
 
-        .rec {
-            display: flex;
-            gap: 12px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background .12s;
-        }
-
-        .rec:hover {
-            background: var(--surface);
-        }
-
-        .rec .tag {
-            font-size: 11px;
+        .history .clear-history {
+            font-family: inherit;
+            font-size: 12px;
             color: var(--faint);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .history .clear-history:hover {
+            color: var(--accent);
+        }
+
+        .entry {
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+
+        .entry .entry-head {
+            margin-bottom: 10px;
+        }
+
+        .entry .dir {
+            font-size: 12px;
             font-weight: 500;
-            padding-top: 3px;
-            min-width: 42px;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 3px 9px;
+            border-radius: 999px;
             letter-spacing: .3px;
         }
 
-        .rec .pair {
+        .entry .pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 540px) {
+            .entry .pair {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .entry .col {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .entry .col .txt {
             flex: 1;
             min-width: 0;
-            display: flex;
-            flex-direction: column;
+            font-size: 15px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding-top: 4px;
         }
 
-        .rec .src {
-            font-size: 13px;
+        .entry .col.src .txt {
             color: var(--muted);
-            margin-bottom: 2px;
         }
 
-        .rec .dst {
-            font-size: 14.5px;
+        .entry .col.dst .txt {
             color: var(--text);
+            font-weight: 500;
         }
 
-        .rec .src, .rec .dst {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .entry .col.src {
+            border-right: 1px solid var(--line);
+            padding-right: 14px;
+        }
+
+        @media (max-width: 540px) {
+            .entry .col.src {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+                padding-right: 0;
+                padding-bottom: 10px;
+            }
         }
 
         .spin {
@@ -391,7 +456,7 @@
     <header>
         <div class="brand"><span class="material-symbols-outlined">translate</span> Translate</div>
         <div class="right">
-            <span class="chip">auto · en ⇄ sv</span>
+            <span class="chip">auto-detect</span>
             <button class="icon-btn" id="settingsBtn" title="Settings"><span
                     class="material-symbols-outlined">tune</span></button>
         </div>
@@ -408,7 +473,7 @@
     </section>
 
     <section class="input-card card">
-        <textarea id="input" rows="1" placeholder="Type in English or Swedish…"></textarea>
+        <textarea id="input" rows="1" placeholder="Type in any language…"></textarea>
         <div class="input-actions">
             <button class="icon-btn" id="clearBtn" title="Clear"><span class="material-symbols-outlined">close</span>
             </button>
@@ -417,30 +482,37 @@
         </div>
     </section>
 
-    <section class="output card" id="output" hidden>
-        <div class="output-head">
-            <span class="dir" id="outDir"></span>
-            <button class="icon-btn" id="copyBtn" title="Copy"><span
-                    class="material-symbols-outlined">content_copy</span></button>
-        </div>
-        <div id="translation"></div>
-        <div class="error" id="error" hidden></div>
-    </section>
+    <div class="langs" id="langs"></div>
 
-    <section class="recents" id="recents" hidden>
-        <h2>Recent</h2>
-        <div id="recentList"></div>
+    <section class="error card" id="error" hidden></section>
+
+    <section class="history" id="history" hidden>
+        <div class="history-head">
+            <h2>Translations</h2>
+            <button class="clear-history" id="clearHistoryBtn">clear</button>
+        </div>
+        <div id="historyList"></div>
     </section>
 </div>
 
 <script>
   const DEFAULT_STYLE = "Natural, idiomatic, slightly casual. Sound like a fluent bilingual person writing quickly to a colleague — not a textbook. Keep contractions and informal phrasing. Don't translate literally; translate the intent. Leave technical/code terms and proper nouns untouched.";
 
+  const LANGUAGES = [
+    {name: "English", native: "English", flag: "🇬🇧", code: "en"},
+    {name: "Swedish", native: "Svenska", flag: "🇸🇪", code: "sv"},
+    {name: "Hungarian", native: "Magyar", flag: "🇭🇺", code: "hu"},
+    {name: "German", native: "Deutsch", flag: "🇩🇪", code: "de"},
+    {name: "French", native: "Français", flag: "🇫🇷", code: "fr"},
+    {name: "Spanish", native: "Español", flag: "🇪🇸", code: "es"},
+  ];
+  const DEFAULT_TARGETS = ["English", "Swedish"];
+
   const $ = (id) => document.getElementById(id);
   const els = {
     input: $("input"), go: $("goBtn"), clear: $("clearBtn"),
-    output: $("output"), outDir: $("outDir"), translation: $("translation"),
-    error: $("error"), copy: $("copyBtn"), recents: $("recents"), recentList: $("recentList"),
+    error: $("error"), langs: $("langs"),
+    history: $("history"), historyList: $("historyList"), clearHistory: $("clearHistoryBtn"),
     settings: $("settings"), settingsBtn: $("settingsBtn"), style: $("style"),
   };
 
@@ -470,6 +542,7 @@
   };
 
   let history = [];
+  let targets = [...DEFAULT_TARGETS];
 
   (async function init() {
     els.style.value = (await Store.get("tr:style")) || DEFAULT_STYLE;
@@ -478,7 +551,13 @@
     } catch {
       history = [];
     }
-    renderRecents();
+    try {
+      const saved = JSON.parse((await Store.get("tr:targets")) || "null");
+      if (Array.isArray(saved) && saved.length) targets = saved;
+    } catch { /* keep defaults */
+    }
+    renderLangs();
+    renderHistory();
     autoGrow();
     els.input.focus();
   })();
@@ -493,12 +572,10 @@
     els.input.focus();
   });
   els.go.addEventListener("click", run);
-  els.copy.addEventListener("click", () => {
-    navigator.clipboard?.writeText(els.translation.textContent);
-    els.copy.querySelector(".material-symbols-outlined").textContent = "check";
-    setTimeout(() => {
-      els.copy.querySelector(".material-symbols-outlined").textContent = "content_copy";
-    }, 1200);
+  els.clearHistory.addEventListener("click", () => {
+    history = [];
+    Store.set("tr:history", "[]");
+    renderHistory();
   });
 
   els.input.addEventListener("input", autoGrow);
@@ -514,47 +591,75 @@
     els.input.style.height = Math.min(els.input.scrollHeight, 200) + "px";
   }
 
+  function renderLangs() {
+    els.langs.innerHTML = "";
+    LANGUAGES.forEach((l) => {
+      const label = document.createElement("label");
+      label.className = "lang-chip";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = targets.includes(l.name);
+      cb.addEventListener("change", () => {
+        targets = cb.checked ? [...targets, l.name] : targets.filter((t) => t !== l.name);
+        Store.set("tr:targets", JSON.stringify(targets));
+      });
+      label.appendChild(cb);
+      label.insertAdjacentHTML("beforeend",
+        `<span class="flag">${l.flag}</span><span>${l.native}</span>`);
+      els.langs.appendChild(label);
+    });
+  }
+
   async function run() {
     const text = els.input.value.trim();
     if (!text) return;
+    if (!targets.length) {
+      showError("Pick at least one target language.");
+      return;
+    }
     setBusy(true);
     els.error.hidden = true;
     try {
-      const out = await translate(text);
-      els.outDir.textContent = `${tag(out.source)} → ${tag(out.target)}`;
-      els.translation.textContent = out.translation;
-      els.output.hidden = false;
-      history.unshift({input: text, ...out});
-      history = history.slice(0, 8);
+      const results = await Promise.all(targets.map((t) => translate(text, t)));
+      const fresh = results.filter((r) => r.source !== r.target);
+      if (!fresh.length) {
+        showError("The input is already in every selected language — nothing to translate.");
+        return;
+      }
+      history.unshift(...fresh.map((r) => ({input: text, ...r})));
+      history = history.slice(0, 30);
       Store.set("tr:history", JSON.stringify(history));
-      renderRecents();
+      renderHistory();
       els.input.value = "";
       autoGrow();
     } catch (e) {
-      els.output.hidden = false;
-      els.translation.textContent = "";
-      els.error.hidden = false;
-      els.error.textContent = describeError(e);
+      showError(describeError(e));
     } finally {
       setBusy(false);
       els.input.focus();
     }
   }
 
+  function showError(msg) {
+    els.error.hidden = false;
+    els.error.textContent = msg;
+  }
+
   function tag(lang) {
-    return ({English: "en", Swedish: "sv"})[lang] || "??";
+    const l = LANGUAGES.find((x) => x.name === lang);
+    return l ? l.code : "??";
   }
 
   function describeError(e) {
     return "Couldn't translate: " + (e.message || e);
   }
 
-  async function translate(text) {
+  async function translate(text, target) {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        text, style: els.style.value
+        text, style: els.style.value, target
       }),
     });
     if (!res.ok) throw new Error("API " + res.status);
@@ -562,29 +667,43 @@
     return {source: p.source, target: p.target, translation: p.translation};
   }
 
-  function renderRecents() {
+  function copyButton(getText) {
+    const btn = document.createElement("button");
+    btn.className = "icon-btn small";
+    btn.title = "Copy";
+    btn.innerHTML = '<span class="material-symbols-outlined">content_copy</span>';
+    btn.addEventListener("click", () => {
+      navigator.clipboard?.writeText(getText());
+      const icon = btn.querySelector(".material-symbols-outlined");
+      icon.textContent = "check";
+      setTimeout(() => {
+        icon.textContent = "content_copy";
+      }, 1200);
+    });
+    return btn;
+  }
+
+  function renderHistory() {
     if (!history.length) {
-      els.recents.hidden = true;
+      els.history.hidden = true;
       return;
     }
-    els.recents.hidden = false;
-    els.recentList.innerHTML = "";
+    els.history.hidden = false;
+    els.historyList.innerHTML = "";
     history.forEach((h) => {
-      const row = document.createElement("div");
-      row.className = "rec";
-      row.innerHTML =
-        `<span class="tag">${tag(h.source)}→${tag(h.target)}</span>` +
-        `<span class="pair"><span class="src"></span><span class="dst"></span></span>`;
-      row.querySelector(".src").textContent = h.input;
-      row.querySelector(".dst").textContent = h.translation;
-      row.addEventListener("click", () => {
-        navigator.clipboard?.writeText(h.translation);
-        els.outDir.textContent = `${tag(h.source)} → ${tag(h.target)}`;
-        els.translation.textContent = h.translation;
-        els.error.hidden = true;
-        els.output.hidden = false;
-      });
-      els.recentList.appendChild(row);
+      const entry = document.createElement("div");
+      entry.className = "entry card";
+      entry.innerHTML =
+        `<div class="entry-head"><span class="dir">${tag(h.source)} → ${tag(h.target)}</span></div>` +
+        `<div class="pair">` +
+        `<div class="col src"><div class="txt"></div></div>` +
+        `<div class="col dst"><div class="txt"></div></div>` +
+        `</div>`;
+      entry.querySelector(".src .txt").textContent = h.input;
+      entry.querySelector(".dst .txt").textContent = h.translation;
+      entry.querySelector(".col.src").appendChild(copyButton(() => h.input));
+      entry.querySelector(".col.dst").appendChild(copyButton(() => h.translation));
+      els.historyList.appendChild(entry);
     });
   }
 

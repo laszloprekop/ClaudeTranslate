@@ -12,10 +12,12 @@ app.UseStaticFiles();
 
 app.MapPost("/api/translate", async (TranslateRequest req, ITranslator translator) =>
 {
-    var result = await translator.TranslateAsync(req.Text, req.Style ?? "");
+    var result = string.IsNullOrWhiteSpace(req.Target)
+        ? await translator.TranslateAsync(req.Text, req.Style ?? "")
+        : await translator.TranslateAsync(req.Text, req.Style ?? "", req.Target);
     return Results.Ok(result);
 });
 
 app.Run();
 
-record TranslateRequest(string Text, string? Style);
+record TranslateRequest(string Text, string? Style, string? Target);

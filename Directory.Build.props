@@ -1,0 +1,6 @@
+<Project>
+  <!-- Default version for local builds; CI overrides with -p:Version=<tag> on release. -->
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+</Project>

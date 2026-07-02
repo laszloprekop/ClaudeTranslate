@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet test tests/Translator.Core.Tests
+
+  desktop:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            rid: osx-arm64
+          - os: macos-latest
+            rid: osx-x64
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Set version from tag
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Package .app bundle (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          ./scripts/package-macos.sh ${{ matrix.rid }}
+          ditto -c -k --keepParent dist/Translate.app dist/Translate-${{ matrix.rid }}.zip
+
+      - name: Publish and zip (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          dotnet publish src/Translator.Desktop -c Release -r win-x64 --self-contained -p:Version=$env:VERSION -o dist/publish
+          Compress-Archive -Path dist/publish/* -DestinationPath dist/Translate-win-x64.zip
+
+      - name: Publish and tar (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          dotnet publish src/Translator.Desktop -c Release -r linux-x64 --self-contained -p:Version=$VERSION -o dist/publish
+          tar -C dist/publish -czf dist/Translate-linux-x64.tar.gz .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.rid }}
+          path: |
+            dist/Translate-*.zip
+            dist/Translate-*.tar.gz
+          if-no-files-found: error
+
+  web:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: [linux-x64, osx-arm64, win-x64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Publish self-contained web server
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          dotnet publish src/Translator.Web -c Release -r ${{ matrix.rid }} --self-contained -p:Version=$VERSION -o dist/web
+          cd dist/web
+          if [ "${{ matrix.rid }}" = "linux-x64" ]; then
+            tar -czf ../Translate-Web-${{ matrix.rid }}.tar.gz .
+          else
+            zip -qr ../Translate-Web-${{ matrix.rid }}.zip .
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-${{ matrix.rid }}
+          path: |
+            dist/Translate-Web-*.zip
+            dist/Translate-Web-*.tar.gz
+          if-no-files-found: error
+
+  release:
+    needs: [desktop, web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*
+          generate_release_notes: true

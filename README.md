@@ -42,6 +42,12 @@ desktop app** and a private **ASP.NET web app**.
 
 ## Install
 
+**Prebuilt apps** — grab the latest desktop app (macOS/Windows/Linux) or self-hosted web
+server from [Releases](https://github.com/laszloprekop/ClaudeTranslate/releases); setup and
+first-launch notes are in the **[install guide](./Docs/install.md)**.
+
+Or build from source:
+
 ```bash
 git clone https://github.com/laszloprekop/ClaudeTranslate.git
 cd ClaudeTranslate

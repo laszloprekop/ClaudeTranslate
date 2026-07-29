@@ -7,8 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
-          rel="stylesheet"/>
     <style>
         :root {
             --bg: #f5f6f8;
@@ -19,6 +17,12 @@
             --line: #e7e9ec;
             --accent: #4f46e5;
             --accent-soft: #eef0fe;
+            /* Mirrored from the desktop theme so the two front-ends do not diverge in
+               vocabulary before the web app needs them (ADR-0006). Unused here today. */
+            --warning: #7A5900;
+            --on-warning: #ffffff;
+            --warning-container: #FFDF9E;
+            --on-warning-container: #261A00;
             --radius: 14px;
             --shadow: 0 1px 2px rgba(20, 20, 40, .06), 0 6px 24px rgba(20, 20, 40, .06);
         }
@@ -33,6 +37,10 @@
                 --line: #2a2d33;
                 --accent: #8b85ff;
                 --accent-soft: #25264a;
+                --warning: #F2C14E;
+                --on-warning: #3F2E00;
+                --warning-container: #5C4300;
+                --on-warning-container: #FFDF9E;
                 --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 28px rgba(0, 0, 0, .35);
             }
         }
@@ -56,18 +64,12 @@
             padding: 28px 16px 64px;
         }
 
-        .material-symbols-outlined {
-            font-family: "Material Symbols Outlined";
-            font-weight: normal;
-            font-style: normal;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            white-space: nowrap;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            font-feature-settings: 'liga';
-            user-select: none;
+        /* Phosphor, regular weight, inlined as SVG — no icon webfont. Flags stay emoji. */
+        .ph {
+            width: 21px;
+            height: 21px;
+            fill: currentColor;
+            flex: none;
         }
 
         .app {
@@ -90,9 +92,10 @@
             font-size: 19px;
         }
 
-        .brand .material-symbols-outlined {
+        .brand .ph {
             color: var(--accent);
-            font-size: 24px;
+            width: 24px;
+            height: 24px;
         }
 
         .right {
@@ -130,8 +133,9 @@
             color: var(--accent);
         }
 
-        .icon-btn .material-symbols-outlined {
-            font-size: 21px;
+        .icon-btn .ph {
+            width: 21px;
+            height: 21px;
         }
 
         .icon-btn.small {
@@ -140,8 +144,9 @@
             border-radius: 8px;
         }
 
-        .icon-btn.small .material-symbols-outlined {
-            font-size: 17px;
+        .icon-btn.small .ph {
+            width: 17px;
+            height: 17px;
         }
 
         .card {
@@ -263,8 +268,9 @@
             cursor: default;
         }
 
-        .primary .material-symbols-outlined {
-            font-size: 19px;
+        .primary .ph {
+            width: 19px;
+            height: 19px;
         }
 
         .langs {
@@ -454,11 +460,10 @@
 <body>
 <div class="app">
     <header>
-        <div class="brand"><span class="material-symbols-outlined">translate</span> Translate</div>
+        <div class="brand"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M247.15,212.42l-56-112a8,8,0,0,0-14.31,0l-21.71,43.43A88,88,0,0,1,108,126.93,103.65,103.65,0,0,0,135.69,64H160a8,8,0,0,0,0-16H104V32a8,8,0,0,0-16,0V48H32a8,8,0,0,0,0,16h87.63A87.76,87.76,0,0,1,96,116.35a87.74,87.74,0,0,1-19-31,8,8,0,1,0-15.08,5.34A103.63,103.63,0,0,0,84,127a87.55,87.55,0,0,1-52,17,8,8,0,0,0,0,16,103.46,103.46,0,0,0,64-22.08,104.18,104.18,0,0,0,51.44,21.31l-26.6,53.19a8,8,0,0,0,14.31,7.16L148.94,192h70.11l13.79,27.58A8,8,0,0,0,240,224a8,8,0,0,0,7.15-11.58ZM156.94,176,184,121.89,211.05,176Z"/></svg> Translate</div>
         <div class="right">
             <span class="chip">auto-detect</span>
-            <button class="icon-btn" id="settingsBtn" title="Settings"><span
-                    class="material-symbols-outlined">tune</span></button>
+            <button class="icon-btn" id="settingsBtn" title="Settings"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M136,120v96a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm64,72a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200A8,8,0,0,0,200,192Zm24-32H208V40a8,8,0,0,0-16,0V160H176a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16ZM56,160a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V168A8,8,0,0,0,56,160Zm24-32H64V40a8,8,0,0,0-16,0v88H32a8,8,0,0,0,0,16H80a8,8,0,0,0,0-16Zm72-48H136V40a8,8,0,0,0-16,0V80H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z"/></svg></button>
         </div>
     </header>
 
@@ -475,9 +480,9 @@
     <section class="input-card card">
         <textarea id="input" rows="1" placeholder="Type in any language…"></textarea>
         <div class="input-actions">
-            <button class="icon-btn" id="clearBtn" title="Clear"><span class="material-symbols-outlined">close</span>
+            <button class="icon-btn" id="clearBtn" title="Clear"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
             </button>
-            <button class="primary" id="goBtn"><span class="material-symbols-outlined">arrow_forward</span> Translate
+            <button class="primary" id="goBtn"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg> Translate
             </button>
         </div>
     </section>
@@ -509,13 +514,14 @@
   const DEFAULT_TARGETS = ["English", "Swedish"];
 
   // Shown when the history is empty (first visit or after "clear") to showcase the app.
+  // Phrases only, to stay in step with the desktop app, where one word is a Lookup.
   const EXAMPLES = [
     {input: "Where is the nearest train station?", source: "English", target: "Swedish", translation: "Var ligger närmaste tågstation?"},
     {input: "Tack för hjälpen!", source: "Swedish", target: "English", translation: "Thanks for the help!"},
-    {input: "szeretlek", source: "Hungarian", target: "English", translation: "I love you"},
+    {input: "Szeretlek, de most mennem kell.", source: "Hungarian", target: "English", translation: "I love you, but I have to go now."},
     {input: "See you tomorrow!", source: "English", target: "German", translation: "Bis morgen!"},
-    {input: "petit déjeuner", source: "French", target: "English", translation: "breakfast"},
-    {input: "mariposa", source: "Spanish", target: "Swedish", translation: "fjäril"},
+    {input: "On prend le petit déjeuner ensemble ?", source: "French", target: "English", translation: "Shall we have breakfast together?"},
+    {input: "La mariposa se posó en mi mano.", source: "Spanish", target: "Swedish", translation: "Fjärilen landade i min hand."},
   ];
 
   const $ = (id) => document.getElementById(id);
@@ -689,17 +695,20 @@
     return {source: p.source, target: p.target, translation: p.translation};
   }
 
+  const COPY_ICON = '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></svg>';
+  const CHECK_ICON = '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>';
+  const ARROW_ICON = '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>';
+
   function copyButton(getText) {
     const btn = document.createElement("button");
     btn.className = "icon-btn small";
     btn.title = "Copy";
-    btn.innerHTML = '<span class="material-symbols-outlined">content_copy</span>';
+    btn.innerHTML = COPY_ICON;
     btn.addEventListener("click", () => {
       navigator.clipboard?.writeText(getText());
-      const icon = btn.querySelector(".material-symbols-outlined");
-      icon.textContent = "check";
+      btn.innerHTML = CHECK_ICON;
       setTimeout(() => {
-        icon.textContent = "content_copy";
+        btn.innerHTML = COPY_ICON;
       }, 1200);
     });
     return btn;
@@ -734,7 +743,7 @@
     els.go.disabled = b;
     els.go.innerHTML = b
       ? '<span class="spin"></span>'
-      : '<span class="material-symbols-outlined">arrow_forward</span> Translate';
+      : ARROW_ICON + ' Translate';
   }
 </script>
 </body>

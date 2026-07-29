@@ -128,6 +128,26 @@ Regular weight, 256×256 viewBox, from `phosphor-icons/core` →
   tokens, and with structured outputs an overrun does not truncate gracefully — the JSON
   never closes and deserialisation throws.
 
+### Measured, once the code existed
+
+First real Lookups, all six languages in the Prefetch Set, `claude-opus-5`:
+
+| Word | Effort | Time | Result |
+| --- | --- | --- | --- |
+| `inert` | high (default) | 56 s | 4 entries, 10 senses, 4 false-friend notes, 4176 output tokens |
+| `inert` | **medium** | 39 s | the same 4 entries, 10 senses and 4 notes, 3022 output tokens |
+| `inert` | low | 16 s | 3 entries, 5 senses, **no false-friend notes** |
+| `trögare` | medium | 19 s | `trög`, 4 senses, `trögare — comparative of trög` |
+| `asdfgh` | high | 4 s | zero Entries, a note, no suggestion |
+| `inret` | high | 8 s | zero Entries, a note, suggested `inrett` |
+
+So Lookups run at **medium**: it costs nothing visible against high and saves a third of the
+wait. Low is not an option — it drops the False-friend Notes, which are the point of an Entry.
+Translations stay at high; they take about 4.5 s at any effort, so there is nothing to win.
+
+A whole Entry set is far more than the ~1500 tokens assumed above, and a Lookup takes 20–40
+seconds rather than a few. That is why the Panel has a progress line and says how long it takes.
+
 ## Carried assumptions
 
 Recorded because they were decided in passing rather than asked about:

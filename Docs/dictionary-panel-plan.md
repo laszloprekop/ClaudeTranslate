@@ -1,6 +1,8 @@
 # Dictionary Panel — implementation plan
 
-**Status: designed, not started. No code has been written.**
+**Status: built and checked against the live API.** All nine steps are implemented, plus the
+Prefetch Set and model pickers in Settings. Measured numbers from the first real Lookups are in
+[dictionary-panel.md](./dictionary-panel.md#model-and-limits).
 
 Read first, in this order:
 

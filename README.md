@@ -9,7 +9,7 @@ language; the model detects the direction, translates in a natural, idiomatic
 style, and returns a guaranteed-shape result via the Anthropic SDK's **structured
 outputs** — no fragile JSON-from-markdown parsing.
 
-![Translate — desktop and web app](./Docs/Screenshot.png)
+![Translate — the dictionary panel, dark (design mock)](./Docs/Screenshot.png)
 
 The same translation core drives two front-ends: a cross-platform **Avalonia
 desktop app** and a private **ASP.NET web app**.

@@ -16,6 +16,10 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - run: dotnet test tests/Translator.Core.Tests
+      # The desktop tests that drive a real Avalonia window are excluded here: they need a
+      # working Skia surface on the runner, and a release must not fail on that. Run them
+      # locally with the whole project.
+      - run: dotnet test tests/Translator.Desktop.Tests --filter "Category!=Avalonia"
 
   desktop:
     needs: test

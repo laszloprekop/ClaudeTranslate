@@ -21,6 +21,11 @@
                     <SolidColorBrush x:Key="LineBrush" Color="#e7e9ec"/>
                     <SolidColorBrush x:Key="AccentBrush" Color="#4f46e5"/>
                     <SolidColorBrush x:Key="AccentSoftBrush" Color="#eef0fe"/>
+                    <!-- Material 3 custom "warning" role, amber source: 40 / 90 / 10 (ADR-0006) -->
+                    <SolidColorBrush x:Key="WarningBrush" Color="#7A5900"/>
+                    <SolidColorBrush x:Key="OnWarningBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="WarningContainerBrush" Color="#FFDF9E"/>
+                    <SolidColorBrush x:Key="OnWarningContainerBrush" Color="#261A00"/>
                     <BoxShadows x:Key="CardShadow">0 1 2 0 #0F141428, 0 6 24 0 #0F141428</BoxShadows>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
@@ -32,6 +37,11 @@
                     <SolidColorBrush x:Key="LineBrush" Color="#2a2d33"/>
                     <SolidColorBrush x:Key="AccentBrush" Color="#8b85ff"/>
                     <SolidColorBrush x:Key="AccentSoftBrush" Color="#25264a"/>
+                    <!-- Material 3 custom "warning" role, amber source: 80 / 30 / 90 (ADR-0006) -->
+                    <SolidColorBrush x:Key="WarningBrush" Color="#F2C14E"/>
+                    <SolidColorBrush x:Key="OnWarningBrush" Color="#3F2E00"/>
+                    <SolidColorBrush x:Key="WarningContainerBrush" Color="#5C4300"/>
+                    <SolidColorBrush x:Key="OnWarningContainerBrush" Color="#FFDF9E"/>
                     <BoxShadows x:Key="CardShadow">0 1 2 0 #66000000, 0 8 28 0 #59000000</BoxShadows>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
@@ -39,11 +49,16 @@
             <SolidColorBrush x:Key="ErrorBrush" Color="#d14343"/>
             <FontFamily x:Key="PlexSans">avares://Translator.Desktop/Assets/Fonts#IBM Plex Sans</FontFamily>
 
-            <StreamGeometry x:Key="TranslateIcon">M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z</StreamGeometry>
-            <StreamGeometry x:Key="TuneIcon">M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z</StreamGeometry>
-            <StreamGeometry x:Key="CloseIcon">M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z</StreamGeometry>
-            <StreamGeometry x:Key="ArrowIcon">M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z</StreamGeometry>
-            <StreamGeometry x:Key="CopyIcon">M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z</StreamGeometry>
+            <!-- Phosphor, regular weight, 256x256 viewBox. Flags stay emoji: Phosphor ships
+                 no country flags, and a second icon dependency was not worth it. -->
+            <StreamGeometry x:Key="TranslateIcon">M247.15,212.42l-56-112a8,8,0,0,0-14.31,0l-21.71,43.43A88,88,0,0,1,108,126.93,103.65,103.65,0,0,0,135.69,64H160a8,8,0,0,0,0-16H104V32a8,8,0,0,0-16,0V48H32a8,8,0,0,0,0,16h87.63A87.76,87.76,0,0,1,96,116.35a87.74,87.74,0,0,1-19-31,8,8,0,1,0-15.08,5.34A103.63,103.63,0,0,0,84,127a87.55,87.55,0,0,1-52,17,8,8,0,0,0,0,16,103.46,103.46,0,0,0,64-22.08,104.18,104.18,0,0,0,51.44,21.31l-26.6,53.19a8,8,0,0,0,14.31,7.16L148.94,192h70.11l13.79,27.58A8,8,0,0,0,240,224a8,8,0,0,0,7.15-11.58ZM156.94,176,184,121.89,211.05,176Z</StreamGeometry>
+            <StreamGeometry x:Key="TuneIcon">M136,120v96a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm64,72a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200A8,8,0,0,0,200,192Zm24-32H208V40a8,8,0,0,0-16,0V160H176a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16ZM56,160a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V168A8,8,0,0,0,56,160Zm24-32H64V40a8,8,0,0,0-16,0v88H32a8,8,0,0,0,0,16H80a8,8,0,0,0,0-16Zm72-48H136V40a8,8,0,0,0-16,0V80H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16Z</StreamGeometry>
+            <StreamGeometry x:Key="CloseIcon">M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z</StreamGeometry>
+            <StreamGeometry x:Key="ArrowIcon">M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z</StreamGeometry>
+            <StreamGeometry x:Key="CopyIcon">M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z</StreamGeometry>
+            <StreamGeometry x:Key="WarningIcon">M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z</StreamGeometry>
+            <StreamGeometry x:Key="ExternalIcon">M224,104a8,8,0,0,1-16,0V59.32l-66.33,66.34a8,8,0,0,1-11.32-11.32L196.68,48H152a8,8,0,0,1,0-16h64a8,8,0,0,1,8,8Zm-40,24a8,8,0,0,0-8,8v72H48V80h72a8,8,0,0,0,0-16H48A16,16,0,0,0,32,80V208a16,16,0,0,0,16,16H176a16,16,0,0,0,16-16V136A8,8,0,0,0,184,128Z</StreamGeometry>
+            <StreamGeometry x:Key="CaretIcon">M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z</StreamGeometry>
         </ResourceDictionary>
     </Application.Resources>
 
@@ -166,6 +181,121 @@
             <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+
+        <!-- Dictionary panel -->
+        <Style Selector="Border.panel">
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        </Style>
+
+        <Style Selector="Border.badge">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+        </Style>
+        <Style Selector="Border.badge TextBlock">
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- False-friend note: the highest-value content on screen, and not an error (ADR-0006) -->
+        <Style Selector="Border.warn">
+            <Setter Property="Background" Value="{DynamicResource WarningContainerBrush}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="11,9"/>
+        </Style>
+        <Style Selector="Border.warn :is(TextBlock)">
+            <Setter Property="Foreground" Value="{DynamicResource OnWarningContainerBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="LineHeight" Value="18"/>
+        </Style>
+        <Style Selector="Border.warn PathIcon">
+            <Setter Property="Foreground" Value="{DynamicResource OnWarningContainerBrush}"/>
+            <Setter Property="Width" Value="14"/>
+            <Setter Property="Height" Value="14"/>
+        </Style>
+
+        <!-- Source link out to a published dictionary -->
+        <Style Selector="Button.tag">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="7"/>
+            <Setter Property="Padding" Value="9,3"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="LetterSpacing" Value="0.4"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+        </Style>
+        <Style Selector="Button.tag:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style Selector="Button.tag PathIcon">
+            <Setter Property="Width" Value="11"/>
+            <Setter Property="Height" Value="11"/>
+        </Style>
+
+        <Style Selector="ToggleButton.chip.small">
+            <Setter Property="Padding" Value="11,5"/>
+            <Setter Property="FontSize" Value="12.5"/>
+        </Style>
+
+        <Style Selector="ComboBox.field">
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+
+        <!-- A lookup takes tens of seconds; the line has to keep moving so the wait reads as
+             work rather than as a hang. -->
+        <Style Selector="ProgressBar.working">
+            <Setter Property="MinHeight" Value="3"/>
+            <Setter Property="Height" Value="3"/>
+            <Setter Property="CornerRadius" Value="999"/>
+            <!-- The track is visible on its own: the moving indicator is away from either end
+                 for part of its cycle, and a bar that vanishes reads as a finished bar. -->
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+            <Setter Property="Foreground">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                    <GradientStop Offset="0" Color="#8b85ff"/>
+                    <GradientStop Offset="0.5" Color="#F2C14E"/>
+                    <GradientStop Offset="1" Color="#8b85ff"/>
+                </LinearGradientBrush>
+            </Setter>
+        </Style>
+
+        <!-- Any word on screen is a Lookup target, and stays selectable text while it is one. -->
+        <Style Selector="SelectableTextBlock.wordlink">
+            <Setter Property="Margin" Value="0,0,10,3"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style Selector="SelectableTextBlock.wordlink:pointerover">
+            <Setter Property="TextDecorations" Value="Underline"/>
+        </Style>
+
+        <!-- Selection reads as selection in both themes -->
+        <Style Selector=":is(SelectableTextBlock)">
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentSoftBrush}"/>
+        </Style>
+
+        <Style Selector="TextBlock.tinylabel">
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="LetterSpacing" Value="0.6"/>
+            <Setter Property="Foreground" Value="{DynamicResource FaintBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <!-- Borderless input inside the input card -->

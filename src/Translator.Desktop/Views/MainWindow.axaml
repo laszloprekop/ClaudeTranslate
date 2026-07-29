@@ -2,11 +2,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Translator.Desktop.ViewModels"
         xmlns:models="using:Translator.Desktop.Models"
+        xmlns:core="using:Translator.Core"
+        xmlns:views="using:Translator.Desktop.Views"
         x:Class="Translator.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Width="680" Height="780" MinWidth="520" MinHeight="540"
         Title="Translate">
-    <Grid Margin="28,20,28,16" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*" MaxWidth="680">
+    <Window.Resources>
+        <!-- One template for every clickable word: the trail, equivalents, synonyms, antonyms. -->
+        <DataTemplate x:Key="WordChip" x:DataType="vm:WordChip">
+            <SelectableTextBlock Classes="wordlink" Text="{Binding Text}"
+                                 views:WordClick.Whole="True"
+                                 views:WordClick.Language="{Binding Language}"
+                                 views:WordClick.Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).LookUpChipCommand}"/>
+        </DataTemplate>
+    </Window.Resources>
+    <!-- The Panel is a second column, not an overlay: at 680 a 400px drawer would leave 280 for
+         the app and collapse the very cards being clicked. -->
+    <Grid ColumnDefinitions="*,Auto">
+    <Grid Grid.Column="0" Margin="28,20,28,16" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" MaxWidth="680">
 
         <!-- Header -->
         <DockPanel Grid.Row="0" Margin="0,0,0,20">
@@ -38,18 +52,44 @@
                            Foreground="{DynamicResource TextBrush}"/>
                 <TextBox Classes="field" Text="{Binding ApiKeyText}" PasswordChar="•"/>
                 <TextBlock FontSize="12.5" Foreground="{DynamicResource FaintBrush}" TextWrapping="Wrap"
-                           Margin="0,4,0,0"
+                           Margin="0,4,0,10"
                            Text="The key is stored only on this machine and sent straight to Anthropic."/>
+
+                <TextBlock Text="Model" FontSize="13" FontWeight="Medium"
+                           Foreground="{DynamicResource TextBrush}"/>
+                <ComboBox Classes="field" ItemsSource="{Binding Models}" SelectedItem="{Binding SelectedModel}"
+                          HorizontalAlignment="Stretch" Margin="0,0,0,10"/>
+
+                <!-- The Prefetch Set: what a Lookup asks for, as opposed to what is displayed.
+                     Every Lookup fetches all of these however few languages are switched on
+                     above, so narrowing it is the way to make a Lookup cheaper. -->
+                <TextBlock Text="Look words up in" FontSize="13" FontWeight="Medium"
+                           Foreground="{DynamicResource TextBrush}"/>
+                <ItemsControl ItemsSource="{Binding PrefetchLanguages}" Margin="0,4,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LanguageOption">
+                            <ToggleButton Classes="chip small" IsChecked="{Binding IsChecked}"
+                                          Content="{Binding Label}" Margin="0,0,7,7"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock FontSize="12.5" Foreground="{DynamicResource FaintBrush}" TextWrapping="Wrap"
+                           Text="Entries are fetched for all of these and filtered on screen by the languages you have on, so switching one on above is instant."/>
             </StackPanel>
         </Border>
 
         <!-- Input -->
         <Border Grid.Row="2" Classes="card" Padding="16,4,8,8">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBox Grid.Column="0" Classes="bare" Text="{Binding InputText}"
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,Auto">
+                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Classes="working" IsIndeterminate="True"
+                             Margin="0,6,8,0" IsVisible="{Binding IsWorking}"/>
+                <TextBox Grid.Column="0" Name="InputBox" Classes="bare" Text="{Binding InputText}"
                          AcceptsReturn="True" TextWrapping="Wrap"
                          MinHeight="88" MaxHeight="220" VerticalContentAlignment="Top"
-                         PlaceholderText="Type in any language…" KeyDown="OnInputKeyDown"/>
+                         PlaceholderText="Type in any language — one word looks it up…"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
                             VerticalAlignment="Bottom" Margin="8,0,0,4">
                     <Button Classes="icon" Command="{Binding ClearInputCommand}" ToolTip.Tip="Clear">
@@ -85,12 +125,45 @@
 
         <!-- Error -->
         <Border Grid.Row="4" Classes="card" Padding="18,14" Margin="0,8,0,0" IsVisible="{Binding HasError}">
-            <TextBlock Text="{Binding Error}" Foreground="{StaticResource ErrorBrush}"
+            <SelectableTextBlock Text="{Binding Error}" Foreground="{StaticResource ErrorBrush}"
                        FontSize="14" TextWrapping="Wrap"/>
         </Border>
 
+        <!-- Word Trail: one collapsed line with an expander. The full hundred would run to about
+             a third of the window. -->
+        <StackPanel Grid.Row="5" Margin="0,18,0,0" Spacing="8" IsVisible="{Binding HasTrail}">
+            <DockPanel Margin="4,0">
+                <TextBlock DockPanel.Dock="Left" Text="{Binding TrailHeading}" Classes="tinylabel"/>
+                <Button HorizontalAlignment="Right" Classes="icon small" Command="{Binding ClearTrailCommand}"
+                        ToolTip.Tip="Clear looked-up words" Width="NaN" Padding="8,0">
+                    <TextBlock Text="clear" FontSize="12" Foreground="{DynamicResource FaintBrush}"/>
+                </Button>
+            </DockPanel>
+            <Border Classes="card" Padding="14,8,6,8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Border Grid.Column="0" Height="24" ClipToBounds="True" IsVisible="{Binding !TrailExpanded}">
+                        <ItemsControl ItemsSource="{Binding Trail}" ItemTemplate="{StaticResource WordChip}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Border>
+                    <ItemsControl Grid.Column="0" ItemsSource="{Binding Trail}" IsVisible="{Binding TrailExpanded}"
+                                  ItemTemplate="{StaticResource WordChip}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    <Button Grid.Column="1" Classes="icon small" Command="{Binding ToggleTrailCommand}"
+                            VerticalAlignment="Top" ToolTip.Tip="Show every looked-up word">
+                        <PathIcon Data="{StaticResource CaretIcon}"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </StackPanel>
+
         <!-- History head -->
-        <DockPanel Grid.Row="5" Margin="4,18,4,10" IsVisible="{Binding HasHistory}">
+        <DockPanel Grid.Row="6" Margin="4,18,4,10" IsVisible="{Binding HasHistory}">
             <TextBlock DockPanel.Dock="Left" Text="{Binding HistoryHeading}" FontSize="12" FontWeight="SemiBold"
                        LetterSpacing="0.6" Foreground="{DynamicResource FaintBrush}" VerticalAlignment="Center"/>
             <Button HorizontalAlignment="Right" Classes="icon small" Command="{Binding ClearHistoryCommand}"
@@ -100,46 +173,233 @@
         </DockPanel>
 
         <!-- History -->
-        <ScrollViewer Grid.Row="6" IsVisible="{Binding HasHistory}">
+        <ScrollViewer Grid.Row="7" IsVisible="{Binding HasHistory}">
             <ItemsControl ItemsSource="{Binding Recents}" Margin="0,0,0,8">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:HistoryItem">
                         <Border Classes="card" Padding="16,14" Margin="0,0,0,10">
-                            <StackPanel Spacing="10">
-                                <Border Classes="dir" HorizontalAlignment="Left">
+                            <!-- The direction pill sits in a fixed first column rather than on a
+                                 row of its own: about 30px shorter per card. -->
+                            <Grid ColumnDefinitions="Auto,*,Auto,*">
+                                <Border Grid.Column="0" Classes="dir" VerticalAlignment="Top" Margin="0,4,12,0">
                                     <TextBlock Text="{Binding Dir}"/>
                                 </Border>
-                                <Grid ColumnDefinitions="*,Auto,*">
-                                    <Grid Grid.Column="0" ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="{Binding Input}" TextWrapping="Wrap"
-                                                   FontSize="15" LineHeight="23" Margin="0,4,6,0"
-                                                   Foreground="{DynamicResource MutedBrush}"/>
-                                        <Button Grid.Column="1" Classes="icon small" VerticalAlignment="Top"
-                                                ToolTip.Tip="Copy original"
-                                                Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyCommand}"
-                                                CommandParameter="{Binding Input}">
-                                            <PathIcon Data="{StaticResource CopyIcon}"/>
-                                        </Button>
-                                    </Grid>
-                                    <Border Grid.Column="1" Width="1" Margin="12,2"
-                                            Background="{DynamicResource LineBrush}"/>
-                                    <Grid Grid.Column="2" ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="{Binding Translation}" TextWrapping="Wrap"
-                                                   FontSize="15" LineHeight="23" FontWeight="Medium" Margin="0,4,6,0"
-                                                   Foreground="{DynamicResource TextBrush}"/>
-                                        <Button Grid.Column="1" Classes="icon small" VerticalAlignment="Top"
-                                                ToolTip.Tip="Copy translation"
-                                                Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyCommand}"
-                                                CommandParameter="{Binding Translation}">
-                                            <PathIcon Data="{StaticResource CopyIcon}"/>
-                                        </Button>
-                                    </Grid>
+                                <Grid Grid.Column="1" ColumnDefinitions="*,Auto">
+                                    <!-- Every word in a card is a Lookup, in the language of the
+                                         column it sits in. -->
+                                    <SelectableTextBlock Grid.Column="0" Text="{Binding Input}" TextWrapping="Wrap"
+                                               FontSize="15" LineHeight="23" Margin="0,4,6,0"
+                                               Foreground="{DynamicResource MutedBrush}"
+                                               views:WordClick.Language="{Binding Source}"
+                                               views:WordClick.Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).LookUpChipCommand}"/>
+                                    <Button Grid.Column="1" Classes="icon small" VerticalAlignment="Top"
+                                            ToolTip.Tip="Copy original"
+                                            Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyCommand}"
+                                            CommandParameter="{Binding Input}">
+                                        <PathIcon Data="{StaticResource CopyIcon}"/>
+                                    </Button>
                                 </Grid>
-                            </StackPanel>
+                                <Border Grid.Column="2" Width="1" Margin="12,2"
+                                        Background="{DynamicResource LineBrush}"/>
+                                <Grid Grid.Column="3" ColumnDefinitions="*,Auto">
+                                    <SelectableTextBlock Grid.Column="0" Text="{Binding Translation}" TextWrapping="Wrap"
+                                               FontSize="15" LineHeight="23" FontWeight="Medium" Margin="0,4,6,0"
+                                               Foreground="{DynamicResource TextBrush}"
+                                               views:WordClick.Language="{Binding Target}"
+                                               views:WordClick.Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).LookUpChipCommand}"/>
+                                    <Button Grid.Column="1" Classes="icon small" VerticalAlignment="Top"
+                                            ToolTip.Tip="Copy translation"
+                                            Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyCommand}"
+                                            CommandParameter="{Binding Translation}">
+                                        <PathIcon Data="{StaticResource CopyIcon}"/>
+                                    </Button>
+                                </Grid>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+    </Grid>
+
+    <!-- Dictionary panel -->
+    <Border Grid.Column="1" Classes="panel" Width="400" IsVisible="{Binding IsPanelOpen}">
+        <Grid RowDefinitions="Auto,*">
+            <DockPanel Grid.Row="0" Margin="20,14,10,0">
+                <Button DockPanel.Dock="Right" Classes="icon" Command="{Binding ClosePanelCommand}"
+                        ToolTip.Tip="Close">
+                    <PathIcon Data="{StaticResource CloseIcon}"/>
+                </Button>
+                <SelectableTextBlock Text="{Binding PanelWord}" IsVisible="{Binding IsLookingUp}"
+                           VerticalAlignment="Center" FontSize="15"
+                           Foreground="{DynamicResource FaintBrush}"/>
+            </DockPanel>
+
+            <!-- The Panel scrolls vertically only, and the inset is a margin on the content:
+                 ScrollViewer padding is not taken off the width the content is measured with,
+                 so it would push everything past the 400. -->
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="16" Margin="20,4,16,24">
+                    <StackPanel Spacing="10" IsVisible="{Binding IsLookingUp}">
+                        <ProgressBar Classes="working" IsIndeterminate="True"/>
+                        <TextBlock Text="Looking it up — this takes half a minute."
+                                   FontSize="13.5" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedBrush}"/>
+                    </StackPanel>
+
+                    <!-- Zero entries plus an optional note and an optional suggested word covers
+                         misspellings, proper nouns and non-words as one shape. -->
+                    <StackPanel Spacing="10" IsVisible="{Binding HasPanelNote}">
+                        <SelectableTextBlock Text="{Binding PanelWord}" FontSize="22" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                        <SelectableTextBlock Text="{Binding PanelNote}" TextWrapping="Wrap" FontSize="13.5"
+                                   LineHeight="21" Foreground="{DynamicResource MutedBrush}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="7" IsVisible="{Binding HasPanelSuggestion}">
+                            <TextBlock Text="Did you mean" FontSize="13.5" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource MutedBrush}"/>
+                            <Button Classes="tag" Content="{Binding PanelSuggestion}"
+                                    Command="{Binding LookUpWordCommand}"
+                                    CommandParameter="{Binding PanelSuggestion}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding PanelEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PanelEntry">
+                                <StackPanel Spacing="12" Margin="0,0,0,14">
+                                    <StackPanel Spacing="3">
+                                        <SelectableTextBlock Text="{Binding LemmaNote}" IsVisible="{Binding HasLemmaNote}"
+                                                   FontSize="12" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource FaintBrush}"/>
+                                        <SelectableTextBlock Text="{Binding Headword}" FontSize="26" FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}"/>
+                                        <SelectableTextBlock Text="{Binding Meta}" FontSize="12.5" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                    </StackPanel>
+
+                                    <ItemsControl ItemsSource="{Binding Links}" IsVisible="{Binding HasLinks}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:SourceLink">
+                                                <Button Classes="tag" Margin="0,0,7,0"
+                                                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).OpenLinkCommand}"
+                                                        CommandParameter="{Binding Url}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center"/>
+                                                        <PathIcon Data="{StaticResource ExternalIcon}"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <Border Height="1" Background="{DynamicResource LineBrush}"/>
+
+                                    <!-- Senses stay expanded; comparing them side by side is the point. -->
+                                    <ItemsControl ItemsSource="{Binding Senses}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:PanelSense">
+                                                <StackPanel Spacing="9" Margin="0,0,0,18">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <Border Classes="badge">
+                                                            <TextBlock Text="{Binding Number}"/>
+                                                        </Border>
+                                                        <TextBlock Text="{Binding Domain}" Classes="tinylabel"
+                                                                   IsVisible="{Binding HasDomain}"/>
+                                                    </StackPanel>
+
+                                                    <SelectableTextBlock Text="{Binding Gloss}" TextWrapping="Wrap"
+                                                               FontSize="14" LineHeight="21"
+                                                               Foreground="{DynamicResource TextBrush}"/>
+
+                                                    <Border BorderThickness="2,0,0,0" Padding="10,0,0,0"
+                                                            BorderBrush="{DynamicResource LineBrush}">
+                                                        <SelectableTextBlock Inlines="{Binding ExampleInlines}"
+                                                                   TextWrapping="Wrap" FontStyle="Italic"
+                                                                   FontSize="13" LineHeight="20"
+                                                                   Foreground="{DynamicResource MutedBrush}"/>
+                                                    </Border>
+
+                                                    <!-- Equivalents belong to this sense, and each row
+                                                         carries its own copy: a single word no longer
+                                                         produces a card to copy from. -->
+                                                    <ItemsControl ItemsSource="{Binding Equivalents}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="vm:EquivalentRow">
+                                                                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,2">
+                                                                    <TextBlock Grid.Column="0" Text="{Binding Flag}"
+                                                                               FontSize="13" Margin="0,2,7,0"
+                                                                               VerticalAlignment="Center"
+                                                                               ToolTip.Tip="{Binding Language}"/>
+                                                                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Words}"
+                                                                                  VerticalAlignment="Center"
+                                                                                  ItemTemplate="{StaticResource WordChip}">
+                                                                        <ItemsControl.ItemsPanel>
+                                                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                                        </ItemsControl.ItemsPanel>
+                                                                    </ItemsControl>
+                                                                    <Button Grid.Column="2" Classes="icon small"
+                                                                            ToolTip.Tip="Copy"
+                                                                            Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyCommand}"
+                                                                            CommandParameter="{Binding Text}">
+                                                                        <PathIcon Data="{StaticResource CopyIcon}"/>
+                                                                    </Button>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+
+                                                    <ItemsControl ItemsSource="{Binding Warnings}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="core:FalseFriendNote">
+                                                                <!-- A Grid, not a horizontal StackPanel: a stack
+                                                                     hands its children infinite width and the note
+                                                                     would never wrap. -->
+                                                                <Border Classes="warn" Margin="0,3,0,0">
+                                                                    <Grid ColumnDefinitions="Auto,*">
+                                                                        <PathIcon Grid.Column="0" Data="{StaticResource WarningIcon}"
+                                                                                  VerticalAlignment="Top" Margin="0,2,8,0"/>
+                                                                        <SelectableTextBlock Grid.Column="1" Text="{Binding Note}" TextWrapping="Wrap"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+
+                                                    <Grid ColumnDefinitions="Auto,*" Margin="0,3,0,0"
+                                                          IsVisible="{Binding HasSynonyms}">
+                                                        <TextBlock Grid.Column="0" Text="SYN" Classes="tinylabel"
+                                                                   Margin="0,0,9,0" VerticalAlignment="Top"/>
+                                                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Synonyms}"
+                                                                      ItemTemplate="{StaticResource WordChip}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                        </ItemsControl>
+                                                    </Grid>
+                                                    <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding HasAntonyms}">
+                                                        <TextBlock Grid.Column="0" Text="ANT" Classes="tinylabel"
+                                                                   Margin="0,0,9,0" VerticalAlignment="Top"/>
+                                                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Antonyms}"
+                                                                      ItemTemplate="{StaticResource WordChip}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                        </ItemsControl>
+                                                    </Grid>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
     </Grid>
 </Window>

@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Translator.Core\Translator.Core.csproj" />
-    <ProjectReference Include="..\Translator.Desktop\Translator.Desktop.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
